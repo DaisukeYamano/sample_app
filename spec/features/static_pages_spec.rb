@@ -10,7 +10,7 @@ feature "StaticPages" do
        expect(page).to have_content 'Sample App'
     end
     
-    scenario "should have the right title" do
+    scenario "should have a custome page title" do
       visit '/static_pages/home'
       expect(page).to have_title("#{base_title} | Home")
     end
