@@ -1,42 +1,35 @@
 require 'spec_helper'
 
 feature "StaticPages" do
-  
-  let(:base_title) { "Ruby on Rails Tutorial Sample App" }
-  
-  context "Home pages" do
-    scenario "should have the content 'Sample App'" do
-       visit '/static_pages/home'
-       expect(page).to have_content 'Sample App'
-    end
-    
-    scenario "should have a custome page title" do
-      visit '/static_pages/home'
-      expect(page).to have_title("#{base_title} | Home")
-    end
-  end
-  
-  context "Help page" do
-    scenario "should have the content 'Help'" do
-      visit '/static_pages/help'
-      expect(page).to have_content('Help')
-    end
 
-    scenario "should have the right title" do
-      visit '/static_pages/help'
-      expect(page).to have_title("#{base_title} | Help")
-    end
+  subject { page }
+
+  context "Home pages" do
+    before { visit root_path }
+
+    scenario { should have_content('Sample App') }
+    scenario { should have_title(full_title('')) }
+    scenario { should_not have_title('| Home') }
+  end
+
+  context "Help page" do
+    before { visit help_path }
+    
+    scenario { should have_content('Help') }
+    scenario { should have_title(full_title('Help')) }
   end
   
   context "About page" do
-    scenario "should have the content 'About Us'" do
-      visit '/static_pages/about'
-      expect(page).to have_content('About Us')
-    end
+    before { visit about_path }
 
-    scenario "should have the right title" do
-      visit '/static_pages/about'
-      expect(page).to have_title("#{base_title} | About")
-    end
+    scenario { should have_content('About Us') }
+    scenario { should have_title(full_title('About')) }
+  end
+  
+  context "Contact page" do
+    before { visit contact_path }
+
+    scenario { should have_content('Contact') }
+    scenario { should have_title(full_title('Contact')) }
   end
 end
