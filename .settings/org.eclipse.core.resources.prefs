@@ -1,2 +1,6 @@
 eclipse.preferences.version=1
 encoding//app/helpers/application_helper.rb=UTF-8
+encoding//app/helpers/users_helper.rb=UTF-8
+encoding//config/environments/test.rb=UTF-8
+encoding//spec/features/user_pages_spec.rb=UTF-8
+encoding/<project>=UTF-8
