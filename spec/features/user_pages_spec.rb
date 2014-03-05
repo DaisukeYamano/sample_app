@@ -14,6 +14,8 @@ feature "UserPages" do
     
     scenario "未入力で登録" do
       expect { click_button submit }.not_to change(User, :count)
+      expect(page).to have_title(full_title('Sign up'))
+      expect(page).to have_content('error')
     end
 
     scenario "情報を入力して登録" do
@@ -24,6 +26,9 @@ feature "UserPages" do
         fill_in "Confirmation", with: "foobar"
         click_button submit
       end.to change(User, :count).by(1)
+  
+      expect(page).to have_title('Example User')
+      expect(page).to have_selector('div.alert.alert-success', text: 'Welcome')
     end
   end
   
