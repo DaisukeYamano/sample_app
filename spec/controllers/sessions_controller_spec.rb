@@ -1,0 +1,30 @@
+require 'spec_helper'
+
+describe SessionsController do
+
+  describe "GET 'new'"
+  describe "GET 'create'"
+  describe "GET 'destroy'"
+=begin
+  describe "GET 'new'" do
+    it "returns http success" do
+      get 'new'
+      response.should be_success
+    end
+  end
+
+  describe "GET 'create'" do
+    it "returns http success" do
+      get 'create'
+      response.should be_success
+    end
+  end
+
+  describe "GET 'destroy'" do
+    it "returns http success" do
+      get 'destroy'
+      response.should be_success
+    end
+  end
+=end
+end

@@ -9,31 +9,34 @@ describe User do
   
   subject { @user }
 
+  # 項目確認
   it { should respond_to(:name) }
   it { should respond_to(:email) }
   it { should respond_to(:password_digest) }
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
+  it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
   
+  # 存在確認
   it { should be_valid }
   
-  describe "when name is not present" do
+  describe "名前がない" do
     before { @user.name = " " }
     it { should_not be_valid }
   end
 
-  describe "when email is not present" do
+  describe "メールアドレスがない" do
     before { @user.email = " " }
     it { should_not be_valid }
   end
 
-  describe "when name is too long" do
+  describe "名前が長過ぎる" do
     before { @user.name = "a" * 51 }
     it { should_not be_valid }
   end
 
-  describe "when email format is invalid" do
+  describe "メールアドレスが正しくない" do
     it "should be invalid" do
       addresses = %w[user@foo,com user_at_foo.org example.user@foo.
                      foo@bar_baz.com foo@bar+baz.com foo@bar..com]
@@ -44,7 +47,7 @@ describe User do
     end
   end
 
-  describe "when email format is valid" do
+  describe "メールアドレスが正しい場合" do
     it "should be valid" do
       addresses = %w[user@foo.COM A_US-ER@f.b.org frst.lst@foo.jp a+b@baz.cn]
       addresses.each do |valid_address|
@@ -54,7 +57,7 @@ describe User do
     end
   end
   
-  describe "when email address is already taken" do
+  describe "メールアドレスの二重登録" do
     before do
       user_with_same_email = @user.dup
       user_with_same_email.email = @user.email.upcase
@@ -95,5 +98,10 @@ describe User do
       it { should_not eq user_for_invalid_password }
       specify { expect(user_for_invalid_password).to be_false }
     end
+  end
+  
+  describe "記憶トークンが有効である" do
+    before { @user.save }
+    its(:remember_token) { should_not be_blank }
   end
 end
