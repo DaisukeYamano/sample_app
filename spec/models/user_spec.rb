@@ -17,9 +17,19 @@ describe User do
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
+  it { should respond_to(:admin) }
   
   # 存在確認
   it { should be_valid }
+  
+  describe "with admin attribute set to 'true'" do
+    before do
+      @user.save!
+      @user.toggle!(:admin)
+    end
+    
+    it { should be_admin }
+  end
   
   describe "名前がない" do
     before { @user.name = " " }

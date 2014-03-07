@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.3'
 gem 'bootstrap-sass', '2.3.2.0'
+gem 'will_paginate',  '3.0.4'
+gem 'bootstrap-will_paginate',  '0.0.9'
 
 # Use sqlite3 as the database for Active Record
 
@@ -13,6 +15,7 @@ group :development, :test do
   gem 'spork-rails', '4.0.0'
   gem 'guard-spork', '1.5.0'
   gem 'childprocess', '0.5.1'
+  gem 'faker',        '1.1.2'
 end
 
 group :test do
