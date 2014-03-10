@@ -17,7 +17,7 @@ feature "ユーザーページ" do
     end
 
     context "正しい情報" do
-      let(:user) { FactoryGirl.build(:user) }
+      let(:user) { build(:user) }
 
       scenario { should have_content('Sign up') }
       scenario { should have_title(full_title('Sign up')) }
@@ -26,7 +26,7 @@ feature "ユーザーページ" do
           fill_in "Name",         with: user.name
           fill_in "Email",        with: user.email
           fill_in "Password",     with: user.password
-          fill_in "Confirmation", with: user.password_confirmation
+          fill_in "Confirm Password", with: user.password_confirmation
           click_button "Create my account"
         end.to change(User, :count).by(1)
 
@@ -38,25 +38,33 @@ feature "ユーザーページ" do
     end
   end
 
-  context "プロフィール" do
-    let(:user) { FactoryGirl.create(:user) }
+  context "profile" do
+    let(:user) { create(:user) }
+    let!(:m1) { create(:micropost, user_id: user.id, content: "Foo") }
+    let!(:m2) { create(:micropost, user_id: user.id, content: "Bar") }
     before { visit user_path user }
 
     scenario { should have_content(user.name) }
     scenario { should have_title(user.name) }
+    
+    context "マイクロポストが表示されること" do
+      scenario { should have_content(m1.content) }
+      scenario { should have_content(m2.content) }
+      scenario { should have_content(user.microposts.count) }
+    end
   end
 
   context "編集" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { create(:user) }
     before do
       sign_in user
       visit edit_user_path(user)
     end
 
-    scenario "ページ表示" do
-      expect(page).to have_content("Update your profile")
-      expect(page).to have_title("Edit user")
-      expect(page).to have_link('change',href: 'http://gravatar.com/emails')
+    context "ページが表示されること" do
+      scenario { should have_content("Update your profile") }
+      scenario { should have_title("Edit user") }
+      scenario { should have_link('change',href: 'http://gravatar.com/emails') }
     end
 
     scenario "無効な情報" do
@@ -99,7 +107,7 @@ feature "ユーザーページ" do
   end
 
   context "インデックス" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { create(:user) }
     before(:each) do
       sign_in user
       visit users_path
@@ -115,7 +123,7 @@ feature "ユーザーページ" do
     end
 
     context "ページネーション" do
-      before(:all) { 30.times { FactoryGirl.create(:user) } }
+      before(:all) { 30.times { create(:user) } }
       after(:all) { User.delete_all }
 
       scenario { should have_selector('div.pagination') }
@@ -130,7 +138,7 @@ feature "ユーザーページ" do
       scenario { should_not have_link('delete') }
 
       context "管理ユーザーの場合" do
-        let(:admin) { FactoryGirl.create(:admin) }
+        let(:admin) { create(:admin) }
         before do
           sign_in admin
           visit users_path

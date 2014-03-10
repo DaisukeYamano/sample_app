@@ -16,6 +16,22 @@ feature "StaticPages" do
 
     it_should_behave_like "all static pages"
     scenario { should_not have_title('| Home') }
+
+    context "サインインユーザー" do
+      let(:user) { create(:user) }
+      before do
+        create(:micropost, user: user, content: "Lorem ipsum")
+        create(:micropost, user: user, content: "Dolor sit amet")
+        sign_in user
+        visit root_path
+      end
+
+      scenario "ユーザーフィードが表示される" do
+        user.feed.each do |item|
+          expect(page).to have_selector("li##{item.id}", text: item.content)
+        end
+      end
+    end
   end
 
   context "Help page" do

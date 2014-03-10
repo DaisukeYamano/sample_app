@@ -18,6 +18,7 @@ describe User do
   it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
   it { should respond_to(:admin) }
+  it { should respond_to(:microposts) } #microposts属性の存在確認
   
   # 存在確認
   it { should be_valid }
@@ -113,5 +114,32 @@ describe User do
   describe "記憶トークンが有効である" do
     before { @user.save }
     its(:remember_token) { should_not be_blank }
+  end
+  
+  describe "マイクロポストアソシエーション" do
+    before { @user.save }
+    let!(:older_micropost) { create(:micropost, user: @user, created_at: 1.day.ago) }
+    let!(:newer_micropost) { create(:micropost, user: @user, created_at: 1.hour.ago) }
+
+    it "作成日の逆順で取得できていること" do
+      expect(@user.microposts.to_a).to eq [newer_micropost, older_micropost]
+    end
+    
+    it "ユーザー削除と同時に関連するマイクロポストも削除されること" do
+      microposts = @user.microposts.to_a
+      @user.destroy
+      expect(microposts).not_to be_empty
+      microposts.each do |micropost|
+        expect(Micropost.where(id: micropost.id)).to be_empty
+      end
+    end
+    
+    describe "ステータス" do
+      let(:unfollowed_post) { create(:micropost, user: create(:user)) }
+      
+      its(:feed) { should include(newer_micropost) }
+      its(:feed) { should include(older_micropost) }
+      its(:feed) { should_not include(unfollowed_post) }
+    end
   end
 end

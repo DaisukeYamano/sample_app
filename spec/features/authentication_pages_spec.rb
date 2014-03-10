@@ -18,16 +18,15 @@ feature "認証" do
       expect(page).to_not have_selector('div.alert.alert-error')
     end
     
-    context "認証が必要なページにアクセスした場合" do
-      let(:user) { FactoryGirl.create(:user) }
+    context "認証が必要なページにアクセス" do
+      let(:user) { create(:user) }
       before do
         visit edit_user_path(user)
         fill_in "Email",    with: user.email
         fill_in "Password", with: user.password
         click_button "Sign in"
       end
-      
-      
+            
       context "認証が必要なページが表示される" do
         scenario { should have_title('Edit user') }
       end
@@ -41,12 +40,32 @@ feature "認証" do
           click_button "Sign in"
         end
         scenario { should have_title(user.name) }
+      end      
+    end
+  end
+
+  context "マイクロポスト" do
+    let(:user) { create(:user) }    
+    
+    context "マイクロポストで" do
+      context "POSTリクエストを直接発行", type: :request do
+        before { post microposts_path }
+        scenario "サインインページへリダイレクトされること" do
+          expect(response).to redirect_to(signin_path)
+        end
       end
+  
+      context "DELETEリクエストを直接発行", type: :request do
+        before { delete micropost_path(create(:micropost)) }
+        scenario "サインインページへリダイレクトされること" do
+          expect(response).to redirect_to(signin_path)
+        end
+      end      
     end
   end
 
   context "正しい情報を入力した場合" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { create(:user) }
     before { sign_in user }
 
     scenario "サインインできている" do
@@ -64,29 +83,31 @@ feature "認証" do
     end
   end
 
-  context "GET, PATCHメソッドを直接発行された場合" do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:wrong_user) { FactoryGirl.create(:user, email: "wrong@example.com") }
+  context "メソッドを直接発行：" do
+    let(:user) { create(:user) }
+    let(:wrong_user) { create(:user, email: "wrong@example.com") }
     before { sign_in user, no_capybara: true }
     
-    context "GETリクエストを直接発行", type: :request do
-      before { get edit_user_path(wrong_user) }
-      scenario "ルートページへリダイレクトされること" do
-        expect(response.body).not_to match(full_title('Edit user'))
-        expect(response).to redirect_to(root_path)
+    context "ユーザーで" do
+      context "GETリクエストを直接発行した場合", type: :request do
+        before { get edit_user_path(wrong_user) }
+        scenario "ルートページへリダイレクトされること" do
+          expect(response.body).not_to match(full_title('Edit user'))
+          expect(response).to redirect_to(root_path)
+        end
       end
-    end
-
-    context "PATCHリクエストを直接発行", type: :request do
-      before { patch user_path(wrong_user) }
-      scenario "ルートページへリダイレクトされること" do
-        expect(response).to redirect_to(root_path)
+  
+      context "PATCHリクエストを直接発行した場合", type: :request do
+        before { patch user_path(wrong_user) }
+        scenario "ルートページへリダイレクトされること" do
+          expect(response).to redirect_to(root_path)
+        end
       end
     end
   end
   
   context "フレンドリーフォワーディング" do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { create(:user) }
     before do
       visit edit_user_path(user)
       sign_in user
@@ -98,14 +119,13 @@ feature "認証" do
   end
   
   context "インデックスページ" do
-    subject { page }
     before { visit users_path }
     scenario { should have_title('Sign in') }
   end
   
   context "権限のないユーザー" do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:non_admin) { FactoryGirl.create(:user) }
+    let(:user) { create(:user) }
+    let(:non_admin) { create(:user) }
 
     before { sign_in non_admin, no_capybara: true }
     
