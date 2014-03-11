@@ -1,5 +1,3 @@
-# coding: utf-8
-
 require 'spec_helper'
 
 feature "ユーザーページ" do
@@ -51,6 +49,48 @@ feature "ユーザーページ" do
       scenario { should have_content(m1.content) }
       scenario { should have_content(m2.content) }
       scenario { should have_content(user.microposts.count) }
+    end
+    
+    context "follow/unfollow ボタン" do
+      let(:other_user) { create(:user) }
+      before { sign_in user }
+      
+      context "ユーザーをフォローする" do
+        before { visit user_path(other_user) }
+
+        scenario "ユーザーのフォローカウントが増えていること" do
+          expect { click_button "Follow" }.to change(user.followed_users, :count).by(1)
+        end
+        
+        scenario "other userのフォロワーカウントが植えていること" do
+          expect { click_button "Follow" }.to change(other_user.followers, :count).by(1)
+        end
+        
+        context "トグルボタン" do
+          before { click_button "Follow" }
+          scenario { should have_xpath("//input[@value='Unfollow']") }
+        end        
+      end
+      
+      context "ユーザーをアンフォローする" do
+        before do
+          user.follow!(other_user)
+          visit user_path(other_user)
+        end
+        
+        scenario "ユーザーのフォローカウントが減っていること" do
+          expect { click_button "Unfollow" }.to change(user.followed_users, :count).by(-1)
+        end
+
+        scenario "other userのフォロワーカウントが減っていること" do
+          expect { click_button "Unfollow" }.to change(other_user.followers, :count).by(-1)
+        end
+        
+        context "トグルボタン" do
+          before { click_button "Unfollow" }
+          scenario { should have_xpath("//input[@value='Follow']") }
+        end
+      end
     end
   end
 
@@ -150,6 +190,34 @@ feature "ユーザーページ" do
         end
         scenario { should_not have_link('delete', href: user_path(admin)) }        
       end
+    end
+  end
+  
+  context "フォロー/フォロワー" do
+    let(:user) { create(:user) }
+    let(:other_user) { create(:user) }
+    before { user.follow!(other_user) }
+    
+    context "フォロー" do
+      before do
+        sign_in user
+        visit following_user_path(user)
+      end
+      
+      scenario { should have_title(full_title('Following')) }
+      scenario { should have_selector('h3', text: 'Following') }
+      scenario { should have_link(other_user.name, href: user_path(other_user)) }
+    end
+    
+    context "フォロワー" do
+      before do
+        sign_in other_user
+        visit followers_user_path(other_user)
+      end
+      
+      scenario { should have_title(full_title('Followers')) }
+      scenario { should have_selector('h3', text: 'Followers') }
+      scenario { should have_link(user.name, href: user_path(user)) }
     end
   end
 end
